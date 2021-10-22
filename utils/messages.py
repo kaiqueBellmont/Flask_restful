@@ -1,2 +1,2 @@
-not_found: dict = {'message': 'Hotel not found.'}
-field_help: str = "The field 'nome' cannot be left blank."
+not_found: dict = {'message': 'not found.'}
+field_help: str = "The field cannot be left blank."

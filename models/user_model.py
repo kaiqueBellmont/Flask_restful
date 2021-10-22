@@ -15,7 +15,7 @@ class UserModel(database.Model):
     def json(self) -> dict:
         return {
             'user_id': self.user_id,
-            'nome': self.password,
+            'login': self.login,
         }
 
     @classmethod
@@ -34,10 +34,9 @@ class UserModel(database.Model):
         database.session.add(self)
         database.session.commit()
 
-    def update_user(self: object, login: str, password: str) -> None:
-        self.login = login
-        self.password = password
-
     def delete_user(self: object) -> None:
         database.session.delete(self)
         database.session.commit()
+
+
+
