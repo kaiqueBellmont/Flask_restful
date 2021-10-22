@@ -14,9 +14,9 @@ class Hotels(Resource):
     def get(self):
         return [hotel.json() for hotel in HotelModel.query.all()]  # SELECT * FROM hoteis
 
-    def post(self: object, hotel_id: int = None) -> object or dict:
+    def post(self: object) -> object or dict:
         body = Hotels.body.parse_args()
-        hotel = HotelModel(hotel_id=hotel_id, **body)
+        hotel = HotelModel(**body)
 
         existing_hotel = HotelModel.find_hotel_by_name(body.nome)
         if existing_hotel:
