@@ -2,9 +2,50 @@ from flask_restful import Resource, reqparse
 from models.hotels_model import HotelModel
 from utils.messages import *
 from flask_jwt_extended import jwt_required
+import sqlite3
 
+
+def normalize_path_params(
+        cidade: str = None,
+        estrelas_min: float = 0,
+        estrelas_max: float = 5,
+        diaria_min: float = 0,
+        diaria_max: float = 10000,
+        limit: int = 50,
+        offset: int = 0,
+        **data) -> dict:
+    if cidade:
+        return {
+            'estrelas_min': estrelas_min,
+            'estrelas_max': estrelas_max,
+            'diaria_min': diaria_min,
+            'diaria_max': diaria_max,
+            'cidade': cidade,
+            'limit': limit,
+            'offset': offset
+        }
+    return {
+        'estrelas_min': estrelas_min,
+        'estrelas_max': estrelas_max,
+        'diaria_min': diaria_min,
+        'diaria_max': diaria_max,
+        'limit': limit,
+        'offset': offset
+    }
+
+
+# path params
+path_params = reqparse.RequestParser()
+path_params.add_argument('cidade', type=str, )
+path_params.add_argument('estrelas_min', type=float)
+path_params.add_argument('estrelas_max', type=float)
+path_params.add_argument('diaria_max', type=float)
+path_params.add_argument('diaria_min', type=float)
+path_params.add_argument('limit', type=int)
+path_params.add_argument('offset', type=int)
+
+# body params
 body = reqparse.RequestParser()
-
 body.add_argument('nome', type=str, required=True, help=field_help)
 body.add_argument('estrelas', type=str, required=False, help=field_help)
 body.add_argument('diaria', type=float, required=False, help=field_help)
@@ -14,7 +55,40 @@ body.add_argument('cidade', type=str, required=False, help=field_help)
 class Hotels(Resource):
 
     def get(self):
-        return [hotel.json() for hotel in HotelModel.query.all()]  # SELECT * FROM hoteis
+        connection = sqlite3.connect('flaskAPI.db')
+        cursor = connection.cursor()
+
+        data = path_params.parse_args()
+        valid_data = {key: data[key] for key in data if data[key] is not None}
+        params = normalize_path_params(**valid_data)
+
+        if not params.get('cidade'):
+            query = "SELECT * FROM hotels " \
+                    "WHERE (estrelas > ? and estrelas < ?)" \
+                    "and (diaria > ? and diaria < ?)" \
+                    "LIMIT ? OFFSET ?"
+
+            params_tuple = tuple([params[key] for key in params])
+            res = cursor.execute(query, params_tuple)
+        else:
+            query = "SELECT * FROM hotels " \
+                    "WHERE(estrelas > ? and estrelas < ?)" \
+                    "and (diaria > ? and diaria < ?)" \
+                    "and cidade = ? LIMIT ? OFFSET ?"
+
+            params_tuple = tuple([params[key] for key in params])
+            res = cursor.execute(query, params_tuple)
+
+        hotels = list()
+        for row in res:
+            hotels.append({
+                'hotel_id': row[0],
+                'nome': row[1],
+                'estrelas': row[2],
+                'diaria': row[3],
+                'cidade': row[4]
+            })
+        return hotels # SELECT * FROM hoteis
 
     @jwt_required
     def post(self: object) -> object or dict:
