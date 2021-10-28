@@ -1,38 +1,11 @@
 from flask_restful import Resource, reqparse
-from models.hotels_model import HotelModel
-from utils.messages import *
 from flask_jwt_extended import jwt_required
 import sqlite3
 
 
-def normalize_path_params(
-        cidade: str = None,
-        estrelas_min: float = 0,
-        estrelas_max: float = 5,
-        diaria_min: float = 0,
-        diaria_max: float = 10000,
-        limit: int = 50,
-        offset: int = 0,
-        **data) -> dict:
-    if cidade:
-        return {
-            'estrelas_min': estrelas_min,
-            'estrelas_max': estrelas_max,
-            'diaria_min': diaria_min,
-            'diaria_max': diaria_max,
-            'cidade': cidade,
-            'limit': limit,
-            'offset': offset
-        }
-    return {
-        'estrelas_min': estrelas_min,
-        'estrelas_max': estrelas_max,
-        'diaria_min': diaria_min,
-        'diaria_max': diaria_max,
-        'limit': limit,
-        'offset': offset
-    }
-
+from models.hotels_model import HotelModel
+from utils.messages import *
+from filters_and_queries import with_city_query, without_city_query, normalize_path_params
 
 # path params
 path_params = reqparse.RequestParser()
@@ -63,21 +36,11 @@ class Hotels(Resource):
         params = normalize_path_params(**valid_data)
 
         if not params.get('cidade'):
-            query = "SELECT * FROM hotels " \
-                    "WHERE (estrelas > ? and estrelas < ?)" \
-                    "and (diaria > ? and diaria < ?)" \
-                    "LIMIT ? OFFSET ?"
-
             params_tuple = tuple([params[key] for key in params])
-            res = cursor.execute(query, params_tuple)
+            res = cursor.execute(without_city_query, params_tuple)
         else:
-            query = "SELECT * FROM hotels " \
-                    "WHERE(estrelas > ? and estrelas < ?)" \
-                    "and (diaria > ? and diaria < ?)" \
-                    "and cidade = ? LIMIT ? OFFSET ?"
-
             params_tuple = tuple([params[key] for key in params])
-            res = cursor.execute(query, params_tuple)
+            res = cursor.execute(with_city_query, params_tuple)
 
         hotels = list()
         for row in res:
