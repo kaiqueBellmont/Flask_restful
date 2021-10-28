@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 import sqlite3
 
 
-from models.hotels_model import HotelModel
+from models.hotel_model import HotelModel
 from utils.messages import *
 from filters_and_queries import with_city_query, without_city_query, normalize_path_params
 

@@ -1,11 +1,12 @@
 from sql_alchemy import database
 
 
-class UserModel(database.Model):
+class SiteModel(database.Model):
     __tablename__ = 'sites'
 
     site_id = database.Column(database.Integer, primary_key=True)
     url = database.Column(database.String(80))
+    hotels = database.relationship('HotelModel')
 
     def __init__(self: object, url: str) -> None:
         self.url = url
@@ -14,7 +15,7 @@ class UserModel(database.Model):
         return {
             'site_id': self.site_id,
             'url': self.url,
-            'hotels': list()
+            'hotels': [hotel.json() for hotel in self.hotels]
         }
 
     @classmethod
