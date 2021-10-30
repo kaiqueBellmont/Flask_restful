@@ -10,6 +10,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_raw_jwt
 body = reqparse.RequestParser()
 body.add_argument('login', type=str, required=True, help=field_help)
 body.add_argument('password', type=str, required=False, help=field_help)
+body.add_argument('activated', type=bool)
 
 
 class User(Resource):
@@ -36,6 +37,7 @@ class UserRegister(Resource):
             return {"message:": "The login '{}' already exists!".format(data.login)}
 
         user = UserModel(**data)
+        user.activated = False
         user.save_user()
         return {"message:": "user created sucessfully!"}, 201
 
@@ -48,8 +50,10 @@ class UserLogin(Resource):
         user = UserModel.find_user_by_login(data.login)
 
         if user and compare_digest(user.password, data.password):
-            acess_token = create_access_token(identity=user.user_id)
-            return {'access token': acess_token}, 200
+            if user.activated:
+                acess_token = create_access_token(identity=user.user_id)
+                return {'access token': acess_token}, 200
+            return {'message': 'the user is not activated.'}, 400
         return {'message:': 'The username or password is incorrect.'}, 401
 
 
@@ -60,3 +64,18 @@ class UserLogout(Resource):
         jwt_id = get_raw_jwt()['jti']
         BLACKLIST.add(jwt_id)
         return {'message': 'Logged out successfully'}
+
+
+class UserConfirm(Resource):
+    # /confirmation/user_id
+    @classmethod
+    def get(cls, user_id: int) -> object:
+        user = UserModel.find_user(user_id)
+        if not user:
+            return {"message": "User id '{}' not found.".format(user_id)}, 404
+
+        user.activated = True
+        user.save_user()
+        return {"message": "User id: '{}' confirmed successfully .".format(user_id)}, 200
+
+

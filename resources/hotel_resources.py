@@ -2,10 +2,10 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 import sqlite3
 
-
+from models.site_model import SiteModel
 from models.hotel_model import HotelModel
 from utils.messages import *
-from filters_and_queries import with_city_query, without_city_query, normalize_path_params
+from resources.filters_and_queries import with_city_query, without_city_query, normalize_path_params
 
 # path params
 path_params = reqparse.RequestParser()
@@ -23,6 +23,7 @@ body.add_argument('nome', type=str, required=True, help=field_help)
 body.add_argument('estrelas', type=str, required=False, help=field_help)
 body.add_argument('diaria', type=float, required=False, help=field_help)
 body.add_argument('cidade', type=str, required=False, help=field_help)
+body.add_argument('site_id', type=int, required=True, help="Every hotel needs to be linked with a site.")
 
 
 class Hotels(Resource):
@@ -49,16 +50,18 @@ class Hotels(Resource):
                 'nome': row[1],
                 'estrelas': row[2],
                 'diaria': row[3],
-                'cidade': row[4]
+                'cidade': row[4],
+                'site_id': row[5]
             })
-        return hotels # SELECT * FROM hoteis
+        return hotels  # SELECT * FROM hoteis
 
     @jwt_required
     def post(self: object) -> object or dict:
         data = body.parse_args()
         hotel = HotelModel(**data)
-
         existing_hotel = HotelModel.find_hotel_by_name(data.nome)
+        if not SiteModel.find_site(data['site_id']):
+            return {'message': 'The hotel must be associated to a valid site id.'}
         if existing_hotel:
             return {"message": "Hotel '{}' already exists".format(data.nome)}
         try:
