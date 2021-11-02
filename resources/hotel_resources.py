@@ -86,6 +86,7 @@ class Hotel(Resource):
         hotel = HotelModel(**data)
         hotel_found = HotelModel.find_hotel(hotel_id)
         if hotel_found:
+            print(data)
             hotel_found.update_hotel(**data)
             hotel_found.save_hotel()
             return hotel_found.json(), 200

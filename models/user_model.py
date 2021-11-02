@@ -24,9 +24,7 @@ class UserModel(database.Model):
     @classmethod
     def find_user(cls: object, user_id: int) -> object or None:
         user = cls.query.filter_by(user_id=user_id).first()
-        if user:
-            return user
-        return None
+        return user if user else None
 
     @classmethod
     def find_user_by_login(cls: object, login: str) -> object or None:

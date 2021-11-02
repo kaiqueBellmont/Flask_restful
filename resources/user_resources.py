@@ -52,7 +52,7 @@ class UserLogin(Resource):
         if user and compare_digest(user.password, data.password):
             if user.activated:
                 acess_token = create_access_token(identity=user.user_id)
-                return {'access token': acess_token}, 200
+                return {'access_token': acess_token}, 200
             return {'message': 'the user is not activated.'}, 400
         return {'message:': 'The username or password is incorrect.'}, 401
 

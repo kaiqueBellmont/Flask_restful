@@ -42,11 +42,12 @@ class HotelModel(database.Model):
         database.session.add(self)
         database.session.commit()
 
-    def update_hotel(self: object, nome: str, estrelas: float, diaria: float, cidade: str) -> None:
+    def update_hotel(self: object, nome: str, estrelas: float, diaria: float, cidade: str, site_id: int) -> None:
         self.nome = nome
         self.estrelas = estrelas
         self.diaria = diaria
         self.cidade = cidade
+        self.site_id = site_id
 
     def delete_hotel(self: object) -> None:
         database.session.delete(self)

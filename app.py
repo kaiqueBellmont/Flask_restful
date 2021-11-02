@@ -30,7 +30,7 @@ def token_verify(token):
 
 @jwt.revoked_token_loader
 def invalid_access_token():
-    return jsonify({'message': 'You have been logged out.'}), 401
+    return jsonify({'message': 'Token has been revoked'}), 401
 
 
 """ instantiates routes according to class """
