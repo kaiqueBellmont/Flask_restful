@@ -1,9 +1,13 @@
 # Flask_restful
 1- First you must clone the repository to where you prefer with the command:
+<<<<<<< HEAD
 ````
 git clone https://github.com/kaiqueBellmont/Flask_restful.git
 ````
 
+=======
+- `git clone https://github.com/kaiqueBellmont/Flask_restful.git`
+>>>>>>> 53b674575029fcd646c56ae290f6b11c1e0395ea
 
 2 - Install the postman application to make requests and tests.
 
@@ -27,6 +31,7 @@ git clone https://github.com/kaiqueBellmont/Flask_restful.git
 ` pip install -r requirements.txt`
 
 # Routes:
+<<<<<<< HEAD
 ##User
 POST `/register`
 
@@ -62,6 +67,8 @@ DEL `/user/{user_id}`
 - end ( for while )
 ---
 
+=======
+>>>>>>> 53b674575029fcd646c56ae290f6b11c1e0395ea
 ## SITES
 GET `/sites`
 - return a list of sites
@@ -128,6 +135,43 @@ DEL `/hotel/{id}`
 - delete a hotel from the database whose id is in the request
 
 ---
+<<<<<<< HEAD
 
 ## Postman Collection:
 [ postman collection ](postman_collection/Flask_restful%20Api.postman_collection.json)
+=======
+##User
+POST `/register`
+
+- example:
+- {
+    "login": "admin",
+    "password": "admin"
+}
+- create a user in the system.
+- --
+POST `/login`
+- returns an access token to make any future requests
+- {
+    "login": "admin",
+    "password": "admin"
+}
+---
+POST `/logout`
+- logout of the system
+---
+GET `user/{user_id}`
+- return a json like that:
+- {
+    "user_id": 1,
+    "login": "admin",
+    "activated": true
+}
+---
+GET `/confirmation/{user_id}`
+- confirm the user in the system
+---
+DEL `/user/{user_id}`
+- end ( for while )
+---
+>>>>>>> 53b674575029fcd646c56ae290f6b11c1e0395ea
